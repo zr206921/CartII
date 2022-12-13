@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no">
+    <title>Final Project Draft</title>
+    
+    <style>
+html, body
+      #fullviewDiv{
+        position: fixed;
+        background-color: black;
+        height: 100%;
+        width: 100%;     
+        }
+    #titleDiv {
+        position: relative;
+        text-align: center;
+        vertical-align: middle;
+        font-weight: bold;
+        font-size:40px;
+        font: Sans-serif;
+        color: whitesmoke;
+        background-color: #A80000;
+        padding: 0;
+        margin:0;
+        height: 10%;
+        width: 100%;    
+        }   
+    #allviewsDiv {
+        position: absolute;
+        background-color: black;
+        padding: 0;
+        margin: 0%;
+        height: 90%;
+        width: 100%;
+        }
+     #legendDiv   
+        {
+        background-color: black;
+        position: absolute;    
+        float:left;    
+        max-height: 100%; 
+        min-height: 100%;
+        width: 23%;     
+        }
+    #allmapsDiv  
+        {
+        position: absolute;
+        float:right;
+        right:0;    
+        background-color: black;
+        padding: 0;
+        margin:0;
+        height: 100%;
+        width: 77%;       
+        }   
+    #viewDivIBI{
+        position: absolute;
+        background-color: black;
+        padding-right: .5%;
+        padding-left: .5%;
+        margin: 0%;
+        height: 100%;
+        width: 59%;  
+    }  
+    #views2VertDiv{
+        float: right;
+        position: absolute;
+        right: 0;
+        background-color: black;
+        margin-top: 0%;
+        margin:0;
+        height: 100%;
+        width: 40%;   
+        }
+    #viewDivLULC{
+        background-color: black;
+        vertical-align: top;
+        padding-bottom:0.5%; 
+        height: 49.5%;
+        width: 100%;
+    }
+    #viewDivNPDES{  
+        background-color: black;
+        vertical-align: bottom;
+        padding-top: 0.5%;
+        height: 49.5%;
+        width: 100%;
+        } 
+    #IBIMapTitle{
+        position: relative;
+        float: left;
+        left: 37%;
+        vertical-align: text-bottom;
+        font-weight: 400;
+        font-size:20px;
+        font: Sans-serif;
+        color: whitesmoke;
+        background-color: #A80000;
+        padding-top: 1%;
+        margin:0;
+        }     
+    #OtherMapTitles{
+        position: relative;
+        float: right;
+        right:1%;
+        text-align: center;
+        vertical-align: bottom;
+        font-weight: 400;
+        font-size:20px;
+        font: Sans-serif;
+        color: whitesmoke;
+        background-color: #A80000;
+        padding: 0;
+        margin:0;
+        }      
+    </style>
+        
+      
+<link rel="stylesheet" href="https://js.arcgis.com/4.2/esri/css/main.css">
+<script src="https://js.arcgis.com/4.25/"></script>
+ <script>
+     require([
+        "esri/Map",
+        "esri/views/MapView",
+         "esri/layers/GeoJSONLayer",
+        "esri/layers/FeatureLayer",
+        "esri/geometry/Point",
+         "esri/request",
+         "esri/symbols/SimpleFillSymbol",
+         "esri/renderers/SimpleRenderer",
+         "esri/widgets/LayerList",
+         "esri/symbols/SimpleLineSymbol",
+         "esri/Basemap",
+         "esri/layers/VectorTileLayer",
+], function(Map, MapView, GeoJSONLayer, FeatureLayer,Point, esriRequest,SimpleFillSymbol,SimpleRenderer,LayerList,SimpleLineSymbol,Basemap,VectorTileLayer)
+             {
+       //custom basemap
+         var myBasemap = new Basemap({
+    baseLayers:[
+        new VectorTileLayer({
+            portalItem:{
+            id:"ce33c65539634ec1914113299b8a7651"
+            }
+        })
+    ]
+         });          
+  // build IBI Map
+         //IBI map var
+         var IBIMap = new Map ({
+           basemap: myBasemap});
+         
+     //IBI map view         
+         var IBIView = new MapView({
+             map: IBIMap,
+             center: [-82.6, 40.2],
+             container: "viewDivIBI",
+             scale: 2008000,
+         });
+         
+      //add IBI point var
+        var IBIPoints = new FeatureLayer({
+        portalItem: { 
+          id:"e2d87f2306004facaf3cf85f61522d32"},
+             title: "Biodiversity Measurements (IBI Map)"
+      });
+         
+    //add flowline var   
+         var flowlines = new FeatureLayer({
+        portalItem: { 
+          id:"13caa242eb724c5aac2fb8d6b20e9de9"},
+             title: "Flowlines (IBI Map)"
+      });    
+         
+    //add Counties var     
+      var CountiesPink = new FeatureLayer({
+        portalItem: { 
+          id:"710803329f2f4560b80443350d9e72a9"},
+             title: "County Boundary (IBI Map)"
+      });
+         
+    //add White HUC10 Watersheds var
+         var HUC10White = new FeatureLayer({
+        portalItem: { 
+          id:"8c163cd1695f4c1582d7c9f89404d225"},
+             title: "HUC10 Watershed Boundaries (IBI Map)"
+      }); 
+    //add flowlines to IBI map
+         IBIMap.add(flowlines);
+         
+      //add Counties to IBI map
+         IBIMap.add(CountiesPink); 
+         
+    //add HUC10 to IBI map
+         IBIMap.add(HUC10White);  
+ 
+      //add IBIpoints to IBI map
+         IBIMap.add(IBIPoints);    
+       
+         //Legend & Layer List for IBI map
+         const layerList3 = new LayerList({
+            view: IBIView,
+             container: "legendDiv",
+            listItemCreatedFunction: function(event){
+                const item = event.item;
+                if (item.layer.type !="group"){
+                    item.panel = {
+                        content: "legend",
+                        open: true
+                    };
+                }
+            }
+        });       
+//Building LULC Map
+    //LULC map var
+         var LULCMap = new Map ({
+           basemap: myBasemap});
+         
+     //LULC map view         
+         var LULCView = new MapView({
+             map: LULCMap,
+             center: [-83.0, 40.2],
+             container: "viewDivLULC",
+             scale: 4668000});
+         
+        //add black HUC10 Watersheds var
+        var HUC10Black = new FeatureLayer({
+        portalItem: { 
+          id:"d6b996ca655c47e7a26553aa82e53afe"},
+             title: "HUC10 Watershed Boundaries (LULC Map)"
+      }); 
+         
+         //add LULC Var
+         var LULC = new FeatureLayer({
+            portalItem:{ //fromLULC_2018_ReclassedNoWet_2km_MultiPart
+            id:"37ca06fe6fd8475e9013319d351087c7"},
+            title:"Land Use/Land Cover (LULC Map)"
+         });
+         
+        //add Counties var     
+      var CountiesPink = new FeatureLayer({
+        portalItem: { 
+          id:"710803329f2f4560b80443350d9e72a9"},
+             title: "County Boundary (LULC Map)"
+      });
+         
+         //add LULC to map
+         LULCMap.add(LULC)
+         
+         //add Counties to map
+         LULCMap.add(CountiesPink)
+         
+         //add black HUC10 Watersheds to map
+            LULCMap.add(HUC10Black)
+         
+         
+        //Legend & Layer List for LULC map
+         const layerList2 = new LayerList({
+            view: LULCView,
+             container: "legendDiv",
+            listItemCreatedFunction: function(event){
+                const item = event.item;
+                if (item.layer.type !="group"){
+                    item.panel = {
+                        content: "legend",
+                        open: true
+                    };
+                }
+            }
+        });
+         
+//Building NPDES Map            
+         //NPDES map var
+         var NPDESMap = new Map ({
+           basemap: myBasemap
+      
+       });
+     //NPDES map view         
+         var NPDESView = new MapView({
+             map: NPDESMap,
+             center: [-83.0, 40.2],
+             container: "viewDivNPDES",
+             scale: 4668000});
+         
+    //add flowline var   
+         var flowlines = new FeatureLayer({
+        portalItem: { 
+          id:"13caa242eb724c5aac2fb8d6b20e9de9"},
+             title: "Flowlines (NPDES Map)"
+      });    
+         
+    //add Counties var     
+      var CountiesPink = new FeatureLayer({
+        portalItem: { 
+          id:"710803329f2f4560b80443350d9e72a9"},
+             title: "County Boundary (NPDES Map)"
+      });
+         
+    //add White HUC10 Watersheds var
+         var HUC10White = new FeatureLayer({
+        portalItem: { 
+          id:"8c163cd1695f4c1582d7c9f89404d225"},
+             title: "HUC10 Watershed Boundaries (NPDES Map)"
+      }); 
+
+         
+         //add NPDES VAR 
+        var NPDESPermits = new FeatureLayer({
+        portalItem: { 
+          id:"038c78f9f71a4f2c86277f2845d32226"},
+            title:"NPDES Permits >500,000 Max Gallons/Day (NPDES Map)"
+      }); 
+      //add flowlines to NPDES map
+         NPDESMap.add(flowlines);
+         
+      //add Counties to NPDES map
+         NPDESMap.add(CountiesPink); 
+         
+    //add HUC10 to NPDES map
+         NPDESMap.add(HUC10White);  
+ 
+      //add NPDES to NPDES map
+         NPDESMap.add(NPDESPermits); 
+         
+    //Legend & Layer List for NPDES map
+         const layerList = new LayerList({
+            view: NPDESView,
+             container: "legendDiv",
+            listItemCreatedFunction: function(event){
+                const item = event.item;
+                if (item.layer.type !="group"){
+                    item.panel = {
+                        content: "legend",
+                        open: true
+                    };
+                }
+            }
+        });
+        
+
+         
+//Sync the views
+    const views = [LULCView, NPDESView, IBIView];
+        let active;
+
+        const sync = (source) => {
+          if (!active || !active.viewpoint || active !== source) {
+            return;
+          }
+
+          for (const view of views) {
+            if (view !== active) {
+              view.viewpoint = active.viewpoint;
+            }
+          }
+        };
+
+        for (const view of views) {
+          view.watch(["interacting", "animation"], () => {
+            active = view;
+            sync(active);
+          });
+
+          view.watch("viewpoint", () => sync(view));
+        }
+           });//end line
+</script>
+</head>
+    
+  <body>
+      <div id = "fullviewDiv">
+      <div id= "titleDiv"> Fish Biodiversity in Ohio Compared to Land Use and Waste Water Treatment Plant (WWTP) Discharge
+          <div id="IBIMapTitle">Fish Biodiversity Measurements (IBI Map)</div>
+          <div id="OtherMapTitles">[Top] Land Use in Ohio (LULC Map)<br> 
+              [Bottom] WWTP Maximum Permited Discharge (NPDES Map)</div>
+          </div>
+      <div id= "allviewsDiv">
+        <div id="legendDiv"></div>
+        <div id="allmapsDiv">
+            <div id="viewDivIBI"></div>
+            <div id= "views2VertDiv">
+            <div id= "viewDivLULC"></div>
+            <div id= "viewDivNPDES"></div>
+            </div>
+        </div>
+      </div>
+        </div> 
+  </body>  
+</html>
